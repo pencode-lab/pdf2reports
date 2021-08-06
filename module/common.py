@@ -48,7 +48,7 @@ def create_text_dict(t,value=None):
     return text
 
 
-def parse_text_box(root,start_word,stop_word=None, min_row_size=20):
+def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
     """
     Parses an XML structure in pdf2xml format to extract the text boxes.
     <root> is the XML tree root
@@ -89,19 +89,26 @@ def parse_text_box(root,start_word,stop_word=None, min_row_size=20):
             if( len(_last_row)>0):
                 last_text = _last_row[-1]
                 #Make sure  save  all text in the same row 
-                if abs(text.get('top') - last_text.get('top')) > min_row_size:#in same row
+                if last_text.get('top')== text.get('top'):
+                    row_space = 0
+                elif last_text.get('top') <= text.get('top'):
+                    row_space =text.get('top') - (last_text.get('top') + last_text.get('height'))
+                else:
+                    row_space =last_text.get('top') - (text.get('top') + text.get('height'))
+
+                if abs(row_space) > min_row_space:#is't in same row
                         del text_list[-1]
                         break
             _last_row.append(text)
         
 
-    return text_list
+    return text_list,min_row_space
 
 
 
 
 
-def compose_rows(text_list, min_row_size=20):
+def compose_rows(text_list, min_row_space=16):
 
     '''
     from parse_text_box() get text list
@@ -119,7 +126,16 @@ def compose_rows(text_list, min_row_size=20):
             while True:
                 text=next(iter_texts)
                 if prv_text:
-                    if abs(text.get('top') - prv_text.get('top')) > min_row_size:#is't in same row
+
+                    #Make sure  save  all text in the same row
+                    if prv_text.get('top')== text.get('top'):
+                        row_space = 0
+                    elif prv_text.get('top') <= text.get('top'):
+                        row_space =text.get('top') - (prv_text.get('top') + prv_text.get('height'))
+                    else:
+                        row_space =prv_text.get('top') - (text.get('top') + text.get('height'))
+
+                    if abs(row_space) > min_row_space:#is't in same row
                         #save row and start new row
                         rows_list.append(_row.copy())
                         prv_text=None
@@ -138,7 +154,7 @@ def compose_rows(text_list, min_row_size=20):
 
 
 
-def compose_col(rows_list, min_col_size=60):
+def compose_col(rows_list, min_col_space=60):
 
     '''
     from compose_rows get rows list
@@ -147,23 +163,24 @@ def compose_col(rows_list, min_col_size=60):
     return_lists =[]
 
     #row like : [text1,text2,tex3...]
-    for row in rows_list:
+    for row in rows_list: #get per row
 
         iter_texts = iter(row)
         prv_text = None
-        value=''
+        value_list=[]
         _tmp_row=[]
-        while True:
+        while True:#loop for col in a row 
             try:
                 text = next(iter_texts)
                 if prv_text:
-                    if abs(text.get('left') - prv_text.get('left')) > min_col_size:#is't in same col 
-                        _tmp_row.append(value)
-                        value=''
-                value = value + text.get('value')
+                    #print("text.left:=",text.get('left'),'--------prv_text.left+width=',(prv_text.get('left')+prv_text.get('width')))
+                    if (text.get('left') - (prv_text.get('left')+prv_text.get('width'))) > min_col_space:#is't in same col 
+                        _tmp_row.append("".join(value_list))
+                        value_list.clear()
+                value_list.append(text.get('value'))
                 prv_text = text
             except StopIteration:
-                _tmp_row.append(value)
+                _tmp_row.append("".join(value_list))
                 return_lists.append(_tmp_row.copy())
                 break
 
