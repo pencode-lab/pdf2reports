@@ -88,6 +88,8 @@ def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
         if stop :
             if( len(_last_row)>0):
                 last_text = _last_row[-1]
+
+                last_text = _last_row[-1]
                 #Make sure  save  all text in the same row 
                 if last_text.get('top')== text.get('top'):
                     row_space = 0
@@ -97,14 +99,13 @@ def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
                     row_space =last_text.get('top') - (text.get('top') + text.get('height'))
 
                 if abs(row_space) > min_row_space:#is't in same row
-                        del text_list[-1]
-                        break
+                    del text_list[-1]
+                    break
+
             _last_row.append(text)
         
 
     return text_list,min_row_space
-
-
 
 
 
@@ -126,8 +127,6 @@ def compose_rows(text_list, min_row_space=16):
             while True:
                 text=next(iter_texts)
                 if prv_text:
-
-                    #Make sure  save  all text in the same row
                     if prv_text.get('top')== text.get('top'):
                         row_space = 0
                     elif prv_text.get('top') <= text.get('top'):
@@ -173,8 +172,7 @@ def compose_col(rows_list, min_col_space=60):
             try:
                 text = next(iter_texts)
                 if prv_text:
-                    #print("text.left:=",text.get('left'),'--------prv_text.left+width=',(prv_text.get('left')+prv_text.get('width')))
-                    if (text.get('left') - (prv_text.get('left')+prv_text.get('width'))) > min_col_space:#is't in same col 
+                    if text.get('left') > (prv_text.get('left')+prv_text.get('width')+min_col_space): #not in the same col
                         _tmp_row.append("".join(value_list))
                         value_list.clear()
                 value_list.append(text.get('value'))
