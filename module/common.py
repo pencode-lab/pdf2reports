@@ -91,12 +91,7 @@ def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
 
                 last_text = _last_row[-1]
                 #Make sure  save  all text in the same row 
-                if last_text.get('top')== text.get('top'):
-                    row_space = 0
-                elif last_text.get('top') <= text.get('top'):
-                    row_space =text.get('top') - (last_text.get('top') + last_text.get('height'))
-                else:
-                    row_space =last_text.get('top') - (text.get('top') + text.get('height'))
+                row_space = text.get('top') - last_text.get('top')
 
                 if abs(row_space) > min_row_space:#is't in same row
                     del text_list[-1]
@@ -123,25 +118,19 @@ def compose_rows(text_list, min_row_space=16):
     while True :
         try:
             #same rows do in a while()
-            prv_text=None
+            prev_text=None
             while True:
                 text=next(iter_texts)
-                if prv_text:
-                    if prv_text.get('top')== text.get('top'):
-                        row_space = 0
-                    elif prv_text.get('top') <= text.get('top'):
-                        row_space =text.get('top') - (prv_text.get('top') + prv_text.get('height'))
-                    else:
-                        row_space =prv_text.get('top') - (text.get('top') + text.get('height'))
-
+                if prev_text:
+                    row_space = text.get('top') - prev_text.get('top')
                     if abs(row_space) > min_row_space:#is't in same row
                         #save row and start new row
                         rows_list.append(_row.copy())
-                        prv_text=None
+                        prev_text=None
                         _row.clear()
 
                 _row.append(text)
-                prv_text = text
+                prev_text = text
         except StopIteration:
             rows_list.append(_row.copy())
             break
@@ -165,18 +154,18 @@ def compose_col(rows_list, min_col_space=60):
     for row in rows_list: #get per row
 
         iter_texts = iter(row)
-        prv_text = None
+        prev_text = None
         value_list=[]
         _tmp_row=[]
         while True:#loop for col in a row 
             try:
                 text = next(iter_texts)
-                if prv_text:
-                    if text.get('left') > (prv_text.get('left')+prv_text.get('width')+min_col_space): #not in the same col
+                if prev_text:
+                    if text.get('left') > (prev_text.get('left')+prev_text.get('width')+min_col_space): #not in the same col
                         _tmp_row.append("".join(value_list))
                         value_list.clear()
                 value_list.append(text.get('value'))
-                prv_text = text
+                prev_text = text
             except StopIteration:
                 _tmp_row.append("".join(value_list))
                 return_lists.append(_tmp_row.copy())
