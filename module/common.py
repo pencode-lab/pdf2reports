@@ -13,6 +13,7 @@ import json
 import struct
 import numpy as np
 
+__version__ = '0.1'
 
 def read_xml(fname):
     """
@@ -25,7 +26,7 @@ def read_xml(fname):
     return tree, root
 
 
-def create_text_dict(t,value=None):
+def __create_text_dict(t,value=None):
     """
     From an XML element <t>, create a text box dict structure and return it.
     <text top="69" left="684" width="26" height="12" font="1">2020</text>
@@ -48,7 +49,7 @@ def create_text_dict(t,value=None):
     return text
 
 
-def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
+def __parse_text_box(root,start_word,stop_word=None, min_row_space=16):
     """
     Parses an XML structure in pdf2xml format to extract the text boxes.
     <root> is the XML tree root
@@ -82,7 +83,7 @@ def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
                 stop =True
 
         if start:
-            text = create_text_dict(t,value)
+            text = __create_text_dict(t,value)
             text_list.append(text) 
 
         if stop :
@@ -100,11 +101,11 @@ def parse_text_box(root,start_word,stop_word=None, min_row_space=16):
             _last_row.append(text)
         
 
-    return text_list,min_row_space
+    return text_list
 
 
 
-def compose_rows(text_list, min_row_space=16):
+def __compose_rows(text_list, min_row_space=16):
 
     '''
     from parse_text_box() get text list
@@ -125,14 +126,14 @@ def compose_rows(text_list, min_row_space=16):
                     row_space = text.get('top') - prev_text.get('top')
                     if abs(row_space) > min_row_space:#is't in same row
                         #save row and start new row
-                        rows_list.append(_row.copy())
+                        rows_list.append(_row[:])
                         prev_text=None
                         _row.clear()
 
                 _row.append(text)
                 prev_text = text
         except StopIteration:
-            rows_list.append(_row.copy())
+            rows_list.append(_row[:])
             break
         #end try
     #end while
@@ -142,7 +143,7 @@ def compose_rows(text_list, min_row_space=16):
 
 
 
-def compose_col(rows_list, min_col_space=60):
+def __compose_col(rows_list, min_col_space=60):
 
     '''
     from compose_rows get rows list
@@ -168,12 +169,17 @@ def compose_col(rows_list, min_col_space=60):
                 prev_text = text
             except StopIteration:
                 _tmp_row.append("".join(value_list))
-                return_lists.append(_tmp_row.copy())
+                return_lists.append(_tmp_row[:])
                 break
 
 
     return return_lists
 
 
+def parse_xml_to_gird(root,start_word,stop_word=None, min_row_space=16,min_col_space=60):
 
+    t_rows = __parse_text_box(root,start_word,stop_word,min_row_space)
+    r_rows = __compose_rows(t_rows, min_row_space)
+    c_rows = __compose_col(r_rows, min_col_space)
 
+    return [cell for cell in c_rows if len(cell) == 3] #filter only have 3 col's row

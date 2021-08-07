@@ -7,7 +7,8 @@ Created on 2021.08.04
 
 import os
 import sys
-from module.common import (read_xml,parse_text_box,compose_rows,compose_col)
+from module.common import (__version__, read_xml, parse_xml_to_gird)
+#parse_xml_to_gird(root,start_word,stop_word=None, min_row_space=16,min_col_space=60):
 
 
 
@@ -19,6 +20,10 @@ INPUT_XML = 'zhachai.pdf.xml'
 
 
 if __name__ == "__main__":
+
+
+    print('__version__ = ',__version__ )
+
     xmlFilePath = os.path.abspath(os.path.join(DATAPATH, INPUT_XML))
     print(xmlFilePath)
     try:
@@ -27,11 +32,7 @@ if __name__ == "__main__":
 
         #合并资产负债
         print('------------------合并资产负债----------------')
-
-        text_list ,min_row_size = parse_text_box(root,'合并资产负债表','负债和所有者权益总计', 25)  #min_rows_size=25
-        rows_list = compose_rows(text_list,  min_row_size)  #min_row_size must same with parse_text_box
-        #print(rows_list)
-        cols_rows_list = compose_col(rows_list)
+        cols_rows_list = parse_xml_to_gird(root,'合并资产负债表','负债和所有者权益总计', min_row_space=25,min_col_space=60)
         for row in cols_rows_list:
             print(row)
 
@@ -40,27 +41,13 @@ if __name__ == "__main__":
         #合并利润表
         print('------------------合并利润表----------------')
 
-        text_list,min_row_size = parse_text_box(root,'合并利润表','稀释每股收益',25) #min_rows_size=25
-        #print(text_list)
-
-        rows_list = compose_rows(text_list, min_row_size) #min_rows_size = 60
-        '''
-        for row in rows_list:
-            print(row)
-        '''
-
-        cols_rows_list = compose_col(rows_list,60) #min_col_size default =60
+        cols_rows_list =parse_xml_to_gird(root,'合并利润表','稀释每股收益', min_row_space=25,min_col_space=60)
         for row in cols_rows_list:
             print(row)
 
         #合并现金流量表
         print('------------------合并现金流量表----------------')
-
-        text_list,min_row_size = parse_text_box(root,'合并现金流量表','期末现金及现金等价物余额',25)
-        #print(text_list)
-
-        rows_list = compose_rows(text_list, min_row_size) #min_rows_size = 60
-        cols_rows_list = compose_col(rows_list,60) #min_col_size default =60
+        cols_rows_list =parse_xml_to_gird(root,'合并现金流量表','期末现金及现金等价物余额', min_row_space=25,min_col_space=60)
         for row in cols_rows_list:
             print(row)
 
