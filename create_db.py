@@ -34,8 +34,8 @@ if __name__ == '__main__':
         sqlite_handle = HandleSqlite(db_file)
 
         for idx in range(2011,2021):
-            tb_name = "{0}{1}test".format(table_prefix,idx)
-            sql = "CREATE TABLE IF NOT EXISTS {0} (id INT PRIMARY KEY NOT NULL, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
+            tb_name = "{0}{1}".format(table_prefix,idx)
+            sql = "CREATE TABLE IF NOT EXISTS {0} (id INTEGER PRIMARY KEY AUTOINCREMENT, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
             sqlite_handle.execute_sql(sql,'')
 
         sqlite_handle.close_sqlite()
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
         for idx in range(2011,2021):
             tb_name = "{0}{1}".format(table_prefix,idx)
-            sql = "CREATE TABLE IF NOT EXISTS {0} (id INT PRIMARY KEY NOT NULL, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
+            sql = "CREATE TABLE IF NOT EXISTS {0} (id INTEGER PRIMARY KEY AUTOINCREMENT, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
             sqlite_handle.execute_sql(sql,'')
 
         sqlite_handle.close_sqlite()
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         sqlite_handle = HandleSqlite(db_file)
         for idx in range(2011,2021):
             tb_name = "{0}{1}".format(table_prefix,idx)
-            sql = "CREATE TABLE IF NOT EXISTS {0} (id INT PRIMARY KEY NOT NULL, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
+            sql = "CREATE TABLE IF NOT EXISTS {0} (id INTEGER PRIMARY KEY AUTOINCREMENT, title CHAR(50), value1 CHAR(50),value2 CHAR(50));".format(tb_name)
             sqlite_handle.execute_sql(sql,'')
 
         sqlite_handle.close_sqlite()
